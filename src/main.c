@@ -8,10 +8,11 @@ bool is_running = false;
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 
+uint32_t* color_buffer = NULL;
+SDL_Texture* color_buffer_texture = NULL;
+
 int window_width = 800;
 int window_height = 600;
-
-uint32_t* color_buffer = NULL;
 
 bool initialize_window(void)
 {
@@ -21,13 +22,19 @@ bool initialize_window(void)
         return false;
     }
 
+    SDL_DisplayMode display_mode;
+    SDL_GetCurrentDisplayMode(0, &display_mode);
+
+    window_width = display_mode.w;
+    window_height = display_mode.h;
+
     window = SDL_CreateWindow(
         "3D Renderer",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         window_width,
         window_height,
-        SDL_WINDOW_BORDERLESS
+        SDL_WINDOW_FULLSCREEN_DESKTOP
     );
 
     if (!window)
@@ -54,6 +61,13 @@ bool initialize_window(void)
 void setup(void)
 {
     color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
+    color_buffer_texture = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_ARGB8888,
+        SDL_TEXTUREACCESS_STREAMING,
+        window_width,
+        window_height
+    );
 }
 
 void process_input(void)
@@ -81,10 +95,68 @@ void update(void)
 {
 }
 
+void clear_color_buffer(uint32_t color)
+{
+    for (int y = 0; y < window_height; y++)
+    {
+        for (int x = 0; x < window_width; x++)
+        {
+            color_buffer[(window_width * y) + x] = color;
+        }
+    }
+}
+
+void render_color_buffer(void)
+{
+    SDL_UpdateTexture(
+        color_buffer_texture,
+        NULL,
+        color_buffer,
+        (int) (window_width * sizeof(uint32_t))
+    );
+
+    SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
+}
+
+void draw_grid(const int per_segment, const uint32_t color)
+{
+    for (int y = 0; y < window_height; y++)
+    {
+        for (int x = 0; x < window_width; x++)
+        {
+            if ((y % per_segment == 0 && y != 0) && (x % per_segment == 0 && x != 0))
+            {
+                color_buffer[(window_width * y) + x] = color;
+            }
+        }
+    }
+}
+
+void draw_rect(const int x, const int y, const int width, const  int height,  const uint32_t color)
+{
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+            const int current_x = x + i;
+            const int current_y = y + j;
+            color_buffer[(window_width * current_y) + current_x] = color;
+        }
+    }
+}
+
 void render(void)
 {
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderClear(renderer);
+
+    draw_grid(10, 0xFFFFFFFF);
+
+    draw_rect(100, 100, 100, 40, 0xFF00FF00);
+
+    render_color_buffer();
+
+    clear_color_buffer(0xFF000000);
 
     SDL_RenderPresent(renderer);
 }
