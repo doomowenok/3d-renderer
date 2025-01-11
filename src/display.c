@@ -61,9 +61,17 @@ void draw_grid(const int per_segment, const uint32_t color)
         {
             if ((y % per_segment == 0 && y != 0) && (x % per_segment == 0 && x != 0))
             {
-                color_buffer[(window_width * y) + x] = color;
+                draw_pixel(x, y, color);
             }
         }
+    }
+}
+
+void draw_pixel(const int x, const int y, const uint32_t color)
+{
+    if (x < window_width && y < window_height)
+    {
+        color_buffer[(window_width * y) + x] = color;
     }
 }
 
@@ -75,7 +83,7 @@ void draw_rect(const int x, const int y, const int width, const  int height,  co
         {
             const int current_x = x + i;
             const int current_y = y + j;
-            color_buffer[(window_width * current_y) + current_x] = color;
+            draw_pixel(current_x, current_y, color);
         }
     }
 }
@@ -92,13 +100,13 @@ void render_color_buffer(void)
     SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
 }
 
-void clear_color_buffer(uint32_t color)
+void clear_color_buffer(const uint32_t color)
 {
     for (int y = 0; y < window_height; y++)
     {
         for (int x = 0; x < window_width; x++)
         {
-            color_buffer[(window_width * y) + x] = color;
+            draw_pixel(x, y, color);
         }
     }
 }
