@@ -20,8 +20,8 @@ bool initialize_window(void)
     SDL_DisplayMode display_mode;
     SDL_GetCurrentDisplayMode(0, &display_mode);
 
-    window_width = display_mode.w;
-    window_height = display_mode.h;
+    window_width = display_mode.w / 2;
+    window_height = display_mode.h / 2;
 
     window = SDL_CreateWindow(
         "3D Renderer",
@@ -29,7 +29,7 @@ bool initialize_window(void)
         SDL_WINDOWPOS_CENTERED,
         window_width,
         window_height,
-        SDL_WINDOW_FULLSCREEN_DESKTOP
+        SDL_WINDOW_BORDERLESS
     );
 
     if (!window)
@@ -69,7 +69,7 @@ void draw_grid(const int per_segment, const uint32_t color)
 
 void draw_pixel(const int x, const int y, const uint32_t color)
 {
-    if (x < window_width && y < window_height)
+    if (x >= 0 && x < window_width && y >= 0 && y < window_height)
     {
         color_buffer[(window_width * y) + x] = color;
     }
