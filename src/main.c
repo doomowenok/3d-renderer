@@ -8,12 +8,13 @@ const int N_POINTS = 9 * 9 * 9;
 vec3_t cube_points[N_POINTS];
 vec2_t projected_points[N_POINTS];
 
-vec3_t camera_position = { .x = 0.0f, .y = 0.0f, .z = -5.0f };
-vec3_t cube_rotation = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
+vec3_t camera_position = {.x = 0.0f, .y = 0.0f, .z = -5.0f};
+vec3_t cube_rotation = {.x = 0.0f, .y = 0.0f, .z = 0.0f};
 
 float fov_factor = 640;
 
 bool is_running = false;
+uint32_t previous_frame_time = 0;
 
 void setup(void)
 {
@@ -76,9 +77,18 @@ vec2_t project(vec3_t point)
 
 void update(void)
 {
-    cube_rotation.y += 0.005f;
-    cube_rotation.z += 0.005f;
-    cube_rotation.x += 0.005f;
+    const int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
+
+    if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME)
+    {
+        SDL_Delay(time_to_wait);
+    }
+
+    previous_frame_time = SDL_GetTicks();
+
+    cube_rotation.y += 0.01f;
+    cube_rotation.z += 0.01f;
+    cube_rotation.x += 0.01f;
 
     for (int i = 0; i < N_POINTS; i++)
     {
