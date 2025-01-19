@@ -6,6 +6,7 @@ find_package(SDL2 REQUIRED)
 include_directories(${PROJECT_NAME} ${SDL2_INCLUDE_DIRS})
 
 file(GLOB src "src/*.h" "src/*.c")
-add_executable(${PROJECT_NAME} ${src})
+file(GLOB DynamicArray "src/DynamicArray/*.h" "src/DynamicArray/*.c")
+add_executable(${PROJECT_NAME} ${src} ${DynamicArray})
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
