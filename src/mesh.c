@@ -48,6 +48,55 @@ face_t cube_faces[N_CUBE_FACES] =
     {.a = 6, .b = 1, .c = 4},
 };
 
+void load_obj_file_data(char* filename)
+{
+    FILE* file = NULL;
+    char line[1024];
+
+    file = fopen(filename, "r");
+
+    if (!file)
+    {
+        printf("Failed to open file: %s\n", filename);
+        return;
+    }
+
+    while(fgets(line, sizeof(line), file) != NULL)
+    {
+        if (line[0] == 'v')
+        {
+            vec3_t vertex = { 0.0f, 0.0f, 0.0f };
+
+            sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
+
+            array_push(mesh.vertices, vertex);
+        }
+        else if (line[0] == 'f')
+        {
+            int vertex_indices[3];
+            int texture_indices[3];
+            int normal_indices[3];
+            
+            sscanf(
+                line, "f %d/%d/%d %d/%d/%d %d/%d/%d",
+                &vertex_indices[0], &texture_indices[0], &normal_indices[0], 
+                &vertex_indices[1], &texture_indices[1], &normal_indices[1], 
+                &vertex_indices[2], &texture_indices[2], &normal_indices[2]
+            ); 
+
+            face_t face = {
+                .a = vertex_indices[0],
+                .b = vertex_indices[1],
+                .c = vertex_indices[2]
+            };
+
+            array_push(mesh.faces, face);
+        }
+    }
+
+    fclose(file);
+}
+
 void load_cube_mesh_data() 
 {
     for(int i = 0; i < N_CUBE_VERTICES; i++)

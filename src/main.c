@@ -27,7 +27,8 @@ void setup(void)
         window_height
     );
 
-    load_cube_mesh_data();
+    // load_cube_mesh_data();
+    load_obj_file_data("../assets/f22.obj");
 }
 
 void process_input(void)
@@ -172,3 +173,4 @@ int main(void)
 
     return 0;
 }
+ 

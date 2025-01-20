@@ -1,0 +1,2 @@
+cube.obj filter=lfs diff=lfs merge=lfs -text
+f22.obj filter=lfs diff=lfs merge=lfs -text
