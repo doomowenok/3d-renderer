@@ -6,9 +6,33 @@ float vec2_length(vec2_t v)
     return sqrt(v.x * v.x + v.y * v.y);
 }
 
+vec2_t vec2_add(vec2_t v0, vec2_t v1)
+{
+    vec2_t result = { .x = v0.x + v1.x, .y = v0.y + v1.y };
+    return result;
+}
+
+vec2_t vec2_sub(vec2_t v0, vec2_t v1)
+{
+    vec2_t result = { .x = v0.x - v1.x, .y = v0.y - v1.y };
+    return result;
+}
+
 float vec3_length(vec3_t v)
 {
     return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+vec3_t vec3_add(vec3_t v0, vec3_t v1)
+{
+    vec3_t result = { .x = v0.x + v1.x, .y = v0.y + v1.y, .z = v0.z + v1.z };
+    return result;
+}
+
+vec3_t vec3_sub(vec3_t v0, vec3_t v1)
+{
+    vec3_t result = { .x = v0.x - v1.x, .y = v0.y - v1.y, .z = v0.z - v1.z };
+    return result;
 }
 
 vec3_t vec3_rotate_x(vec3_t v, float angle)
