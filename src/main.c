@@ -113,6 +113,8 @@ void update(void)
         vec3_t camera_ray = vec3_sub(camera_position, a);
 
         vec3_t normal = vec3_cross(ab, ac);
+        vec3_normalize(&normal);
+
         float dot = vec3_dot(normal, camera_ray);
 
         if (dot < 0) continue;
