@@ -7,9 +7,9 @@
 #include "triangle.h"
 #include "DynamicArray/array.h"
 
-triangle_t* triangles_to_render = NULL;
+triangle_t *triangles_to_render = NULL;
 
-vec3_t camera_position = {.x = 0.0f, .y = 0.0f, .z = -5.0f};
+vec3_t camera_position = {.x = 0.0f, .y = 0.0f, .z = 0.0f};
 
 float fov_factor = 640;
 
@@ -18,17 +18,15 @@ uint32_t previous_frame_time = 0;
 
 void setup(void)
 {
-    color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
+    color_buffer = (uint32_t *)malloc(sizeof(uint32_t) * window_width * window_height);
     color_buffer_texture = SDL_CreateTexture(
         renderer,
         SDL_PIXELFORMAT_ARGB8888,
         SDL_TEXTUREACCESS_STREAMING,
         window_width,
-        window_height
-    );
+        window_height);
 
-    // load_cube_mesh_data();
-    load_obj_file_data("../assets/f22.obj");
+    load_obj_file_data("../assets/cube.obj");
 }
 
 void process_input(void)
@@ -38,27 +36,27 @@ void process_input(void)
 
     switch (event.type)
     {
-        case SDL_QUIT:
+    case SDL_QUIT:
+        is_running = false;
+        break;
+    case SDL_KEYDOWN:
+        if (event.key.keysym.sym == SDLK_ESCAPE)
+        {
             is_running = false;
-            break;
-        case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_ESCAPE)
-            {
-                is_running = false;
-            }
-            break;
-        default:
-            break;
+        }
+        break;
+    default:
+        break;
     }
 }
 
 vec2_t project(vec3_t point)
 {
     vec2_t projected_point =
-    {
-        .x = (point.x * fov_factor) / point.z,
-        .y = (point.y * fov_factor) / point.z,
-    };
+        {
+            .x = (point.x * fov_factor) / point.z,
+            .y = (point.y * fov_factor) / point.z,
+        };
 
     return projected_point;
 }
@@ -76,9 +74,9 @@ void update(void)
 
     triangles_to_render = NULL;
 
-    mesh.rotation.y += 0.01f;
-    mesh.rotation.z += 0.01f;
-    mesh.rotation.x += 0.01f;
+    mesh.rotation.y += 0.05f;
+    mesh.rotation.z += 0.05f;
+    mesh.rotation.x += 0.05f;
 
     int num_faces = array_length(mesh.faces);
 
@@ -91,7 +89,7 @@ void update(void)
         face_vertices[1] = mesh.vertices[mesh_face.b - 1];
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-        triangle_t projected_triangle;
+        vec3_t transformed_vertices[3];
 
         for (int j = 0; j < 3; j++)
         {
@@ -101,9 +99,29 @@ void update(void)
             transformed_vertex = vec3_rotate_y(transformed_vertex, mesh.rotation.y);
             transformed_vertex = vec3_rotate_z(transformed_vertex, mesh.rotation.z);
 
-            transformed_vertex.z -= camera_position.z;
+            transformed_vertex.z += 5.0f;
 
-            vec2_t projected_point = project(transformed_vertex);
+            transformed_vertices[j] = transformed_vertex;
+        }
+
+        vec3_t a = transformed_vertices[0];
+        vec3_t b = transformed_vertices[1];
+        vec3_t c = transformed_vertices[2];
+
+        vec3_t ab = vec3_sub(b, a);
+        vec3_t ac = vec3_sub(c, a);
+        vec3_t camera_ray = vec3_sub(camera_position, a);
+
+        vec3_t normal = vec3_cross(ab, ac);
+        float dot = vec3_dot(normal, camera_ray);
+
+        if (dot < 0) continue;
+
+        triangle_t projected_triangle;
+
+        for (int j = 0; j < 3; j++)
+        {
+            vec2_t projected_point = project(transformed_vertices[j]);
 
             projected_point.x += window_width / 2.0f;
             projected_point.y += window_height / 2.0f;
@@ -117,8 +135,6 @@ void update(void)
 
 void render(void)
 {
-    // draw_grid(10, 0xFFFFFFFF);
-
     int num_triangles = array_length(triangles_to_render);
 
     for (int i = 0; i < num_triangles; i++)
@@ -173,4 +189,3 @@ int main(void)
 
     return 0;
 }
- 
