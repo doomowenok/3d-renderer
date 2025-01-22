@@ -27,7 +27,7 @@ face_t cube_faces[N_CUBE_FACES] =
     {.a = 1, .b = 2, .c = 3},
     {.a = 1, .b = 3, .c = 4},
 
-    // Right
+    // Right  
     {.a = 4, .b = 3, .c = 5},
     {.a = 4, .b = 5, .c = 6},
 
@@ -38,7 +38,7 @@ face_t cube_faces[N_CUBE_FACES] =
     // Left
     {.a = 8, .b = 7, .c = 2},
     {.a = 8, .b = 2, .c = 1},
-
+ 
     // Top
     {.a = 2, .b = 7, .c = 5},
     {.a = 2, .b = 5, .c = 3},
