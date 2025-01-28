@@ -143,23 +143,25 @@ void render(void)
 {
     int num_triangles = array_length(triangles_to_render);
 
-    for (int i = 0; i < num_triangles; i++)
-    {
-        triangle_t triangle_to_render = triangles_to_render[i];
+    // for (int i = 0; i < num_triangles; i++)
+    // {
+    //     triangle_t triangle_to_render = triangles_to_render[i];
 
-        draw_rect(triangle_to_render.points[0].x, triangle_to_render.points[0].y, 3, 3, 0xFFFFFF00);
-        draw_rect(triangle_to_render.points[1].x, triangle_to_render.points[1].y, 3, 3, 0xFFFFFF00);
-        draw_rect(triangle_to_render.points[2].x, triangle_to_render.points[2].y, 3, 3, 0xFFFFFF00);
+    //     draw_rect(triangle_to_render.points[0].x, triangle_to_render.points[0].y, 3, 3, 0xFFFFFF00);
+    //     draw_rect(triangle_to_render.points[1].x, triangle_to_render.points[1].y, 3, 3, 0xFFFFFF00);
+    //     draw_rect(triangle_to_render.points[2].x, triangle_to_render.points[2].y, 3, 3, 0xFFFFFF00);
 
-        draw_triangle(
-            triangle_to_render.points[0].x,
-            triangle_to_render.points[0].y,
-            triangle_to_render.points[1].x,
-            triangle_to_render.points[1].y,
-            triangle_to_render.points[2].x,
-            triangle_to_render.points[2].y,
-            0xFFFFFF00);
-    }
+    //     draw_triangle(
+    //         triangle_to_render.points[0].x,
+    //         triangle_to_render.points[0].y,
+    //         triangle_to_render.points[1].x,
+    //         triangle_to_render.points[1].y,
+    //         triangle_to_render.points[2].x,
+    //         triangle_to_render.points[2].y,
+    //         0xFFFFFF00);
+    // }
+
+    draw_filled_triangle(300, 100, 50, 400, 500, 700, 0xFF00FF00);
 
     array_free(triangles_to_render);
 
