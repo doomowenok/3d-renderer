@@ -89,6 +89,24 @@ vec2_t project(vec3_t point)
     return projected_point;
 }
 
+void sort_triangles_by_depth()
+{
+    int num_triangles = array_length(triangles_to_render);
+
+    for (int i = 0; i < num_triangles; i++)
+    {
+        for (int j = 0; j < num_triangles - i - 1; j++)
+        {
+            if (triangles_to_render[j].avg_depth < triangles_to_render[j + 1].avg_depth)
+            {
+                triangle_t temp = triangles_to_render[j];
+                triangles_to_render[j] = triangles_to_render[j + 1];
+                triangles_to_render[j + 1] = temp;
+            }
+        }
+    }
+}
+
 void update(void)
 {
     int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
@@ -154,6 +172,8 @@ void update(void)
             }
         }
 
+        float depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0f;
+
         vec2_t projected_points[3];
 
         for (int j = 0; j < 3; j++)
@@ -163,51 +183,50 @@ void update(void)
             projected_points[j].y += (window_height / 2);
         }
 
-        triangle_t projected_triangle = 
-        {
-            .points = 
+        triangle_t projected_triangle =
             {
-                {projected_points[0].x, projected_points[0].y},
-                {projected_points[1].x, projected_points[1].y},
-                {projected_points[2].x, projected_points[2].y}
-            },
-            .color = mesh_face.color
-        };
+                .points =
+                    {
+                        {projected_points[0].x, projected_points[0].y},
+                        {projected_points[1].x, projected_points[1].y},
+                        {projected_points[2].x, projected_points[2].y}},
+                .color = mesh_face.color,
+                .avg_depth = depth};
 
         array_push(triangles_to_render, projected_triangle);
     }
+
+    sort_triangles_by_depth();
 }
 
-void render(void) 
+void render(void)
 {
     SDL_RenderClear(renderer);
 
     int num_triangles = array_length(triangles_to_render);
-    for (int i = 0; i < num_triangles; i++) 
+    for (int i = 0; i < num_triangles; i++)
     {
         triangle_t triangle = triangles_to_render[i];
 
-        if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE) 
+        if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE)
         {
             draw_filled_triangle(
                 triangle.points[0].x, triangle.points[0].y,
                 triangle.points[1].x, triangle.points[1].y,
                 triangle.points[2].x, triangle.points[2].y,
-                triangle.color
-            );
+                triangle.color);
         }
 
-        if (render_method == RENDER_WIRE || render_method == RENDER_WIRE_VERTEX || render_method == RENDER_FILL_TRIANGLE_WIRE) 
+        if (render_method == RENDER_WIRE || render_method == RENDER_WIRE_VERTEX || render_method == RENDER_FILL_TRIANGLE_WIRE)
         {
             draw_triangle(
                 triangle.points[0].x, triangle.points[0].y,
                 triangle.points[1].x, triangle.points[1].y,
                 triangle.points[2].x, triangle.points[2].y,
-                triangle.color
-            );
+                triangle.color);
         }
 
-        if (render_method == RENDER_WIRE_VERTEX) 
+        if (render_method == RENDER_WIRE_VERTEX)
         {
             draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFFFF0000);
             draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFFFF0000);
