@@ -125,10 +125,10 @@ void update(void)
     mesh.rotation.y += 0.01f;
     mesh.rotation.z += 0.01f;
 
-    // mesh.scale.x += 0.01f;
-    // mesh.scale.y += 0.02f;
+    mesh.scale.x += 0.0001f;
+    mesh.scale.y += 0.0001f;
 
-    // mesh.translation.x += 0.01f;
+    mesh.translation.x += 0.001f;
     mesh.translation.z = 5.0f;
 
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -155,13 +155,15 @@ void update(void)
         {
             vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 
-            transformed_vertex = mat4_mul_vec4(scale_matrix, transformed_vertex);
+            mat4_t world_matrix = mat4_identity();
 
-            transformed_vertex = mat4_mul_vec4(rotation_matrix_x, transformed_vertex);
-            transformed_vertex = mat4_mul_vec4(rotation_matrix_y, transformed_vertex);
-            transformed_vertex = mat4_mul_vec4(rotation_matrix_z, transformed_vertex);
+            world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
+            world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
+            world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
+            world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
+            world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
             
-            transformed_vertex = mat4_mul_vec4(translation_matrix, transformed_vertex);
+            transformed_vertex = mat4_mul_vec4(world_matrix, transformed_vertex);
 
             transformed_vertices[j] = transformed_vertex;
         }
