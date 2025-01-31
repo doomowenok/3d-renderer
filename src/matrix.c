@@ -38,6 +38,17 @@ mat4_t mat4_make_scale(float s_x, float s_y, float s_z)
     return m;
 }
 
+mat4_t mat4_make_translation(float t_x, float t_y, float t_z)
+{
+    mat4_t m = mat4_identity();
+
+    m.m[0][3] = t_x;
+    m.m[1][3] = t_y;
+    m.m[2][3] = t_z;
+
+    return m;
+}
+
 vec4_t mat4_mul_vec4(mat4_t m, vec4_t v)
 {
     vec4_t result;
