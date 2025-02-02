@@ -10,12 +10,11 @@
 
 triangle_t *triangles_to_render = NULL;
 
-vec3_t camera_position = {.x = 0.0f, .y = 0.0f, .z = 0.0f};
-
-float fov_factor = 640;
-
 bool is_running = false;
 uint32_t previous_frame_time = 0;
+
+vec3_t camera_position = {.x = 0.0f, .y = 0.0f, .z = 0.0f};
+mat4_t projection_matrix;
 
 void setup(void)
 {
@@ -29,6 +28,13 @@ void setup(void)
         SDL_TEXTUREACCESS_STREAMING,
         window_width,
         window_height);
+
+    float fov = M_PI / 3.0f;
+    float aspect = (float)window_height / (float)window_width;
+    float z_near = 0.1f;
+    float z_far = 100.0f;
+
+    projection_matrix = mat4_make_perspective(fov, aspect, z_near, z_far);
 
     // load_obj_file_data("../assets/cube.obj");
     load_cube_mesh_data();
@@ -77,17 +83,6 @@ void process_input(void)
     default:
         break;
     }
-}
-
-vec2_t project(vec3_t point)
-{
-    vec2_t projected_point =
-        {
-            .x = (point.x * fov_factor) / point.z,
-            .y = (point.y * fov_factor) / point.z,
-        };
-
-    return projected_point;
 }
 
 void sort_triangles_by_depth()
@@ -192,16 +187,20 @@ void update(void)
             }
         }
 
-        float depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0f;
-
-        vec2_t projected_points[3];
+        vec4_t projected_points[3];
 
         for (int j = 0; j < 3; j++)
         {
-            projected_points[j] = project(vec3_from_vec4(transformed_vertices[j]));
-            projected_points[j].x += (window_width / 2);
-            projected_points[j].y += (window_height / 2);
+            projected_points[j] = mat4_mul_vec4_projection(projection_matrix, transformed_vertices[j]);
+
+            projected_points[j].x *= (window_width / 2.0f);
+            projected_points[j].y *= (window_height / 2.0f);
+
+            projected_points[j].x += (window_width / 2.0f);
+            projected_points[j].y += (window_height / 2.0f);
         }
+
+        float depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0f;
 
         triangle_t projected_triangle =
             {
@@ -212,7 +211,8 @@ void update(void)
                         {projected_points[2].x, projected_points[2].y}
                     },
                 .color = mesh_face.color,
-                .avg_depth = depth};
+                .avg_depth = depth
+            };
 
         array_push(triangles_to_render, projected_triangle);
     }

@@ -95,6 +95,31 @@ mat4_t mat4_make_rotation_y(float angle)
     return m;
 }
 
+vec4_t mat4_mul_vec4_projection(mat4_t projection_matrix, vec4_t v)
+{
+    vec4_t result = mat4_mul_vec4(projection_matrix, v);
+
+    if(result.w != 0.0f)
+    {
+        result.x /= result.w;
+        result.y /= result.w;
+        result.z /= result.w;
+    }
+
+    return result;
+}
+
+mat4_t mat4_make_perspective(float fov, float aspect, float z_near, float z_far)
+{
+    mat4_t m = {{{ 0 }}};
+    m.m[0][0] = aspect * (1 / tan(fov / 2));
+    m.m[1][1] = 1 / tan(fov / 2);
+    m.m[2][2] = z_far / (z_far - z_near);
+    m.m[2][3] = (-z_far * z_near) / (z_far - z_near);
+    m.m[3][2] = 1.0;
+    return m;
+}
+
 mat4_t mat4_mul_mat4(mat4_t a, mat4_t b)
 {
     mat4_t m;
