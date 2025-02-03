@@ -197,6 +197,8 @@ void update(void)
             projected_points[j].x *= (window_width / 2.0f);
             projected_points[j].y *= (window_height / 2.0f);
 
+            projected_points[j].y *= -1.0f;
+
             projected_points[j].x += (window_width / 2.0f);
             projected_points[j].y += (window_height / 2.0f);
         }
