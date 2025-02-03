@@ -88,7 +88,7 @@ void draw_line(const int x0, const int y0, const int x1, const int y1, const uin
     float current_x = x0;
     float current_y = y0;
 
-    for (int i = 0; i < longest_side_length; i++)
+    for (int i = 0; i <= longest_side_length; i++)
     {
         draw_pixel(round(current_x), round(current_y), color);
         current_x += x_inc;
