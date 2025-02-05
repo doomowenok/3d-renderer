@@ -96,13 +96,6 @@ void draw_line(const int x0, const int y0, const int x1, const int y1, const uin
     }
 }
 
-void draw_triangle(const int x0, const int y0, const int x1, const int y1, const int x2, const int y2, const uint32_t color)
-{
-    draw_line(x0, y0, x1, y1, color);
-    draw_line(x1, y1, x2, y2, color);
-    draw_line(x2, y2, x0, y0, color);
-}
-
 void draw_rect(const int x, const int y, const int width, const  int height,  const uint32_t color)
 {
     for (int i = 0; i < width; i++)
