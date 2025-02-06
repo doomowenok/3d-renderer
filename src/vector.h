@@ -36,6 +36,7 @@ vec3_t vec3_sub(vec3_t v0, vec3_t v1);
 vec3_t vec3_mul(vec3_t v, float factor);
 vec3_t vec3_div(vec3_t v, float factor);
 vec3_t vec3_cross(vec3_t v0, vec3_t v1);
+vec3_t barycentric_weight(vec2_t a, vec2_t b, vec2_t c, vec2_t p);
 float vec3_dot(vec3_t v0, vec3_t v1);
 void vec3_normalize(vec3_t* v);
 vec3_t vec3_rotate_x(vec3_t v, float angle);
