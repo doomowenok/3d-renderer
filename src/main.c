@@ -130,7 +130,7 @@ void update(void)
 
     triangles_to_render = NULL;
 
-    mesh.rotation.x += 0.03f;
+    // mesh.rotation.x += 0.03f;
     // mesh.rotation.y += 0.03f;
     // mesh.rotation.z += 0.03f;
 

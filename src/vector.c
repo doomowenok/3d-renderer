@@ -82,24 +82,6 @@ vec3_t vec3_cross(vec3_t v0, vec3_t v1)
     return result;
 }
 
-vec3_t barycentric_weight(vec2_t a, vec2_t b, vec2_t c, vec2_t p)
-{
-    vec2_t ac = vec2_sub(c, a);
-    vec2_t ab = vec2_sub(b, a);
-    vec2_t pc = vec2_sub(c, p);
-    vec2_t pb = vec2_sub(b, p);
-    vec2_t ap = vec2_sub(p, a);
-
-    float area_parallelogram_abc = (ac.x * ab.y - ac.y * ab.x);
-
-    float alpha = (pc.x * pb.y - pc.y * pb.x) / area_parallelogram_abc;
-    float beta = (ac.x * ap.y - ac.y * ap.x) / area_parallelogram_abc;
-    float gamma = 1.0f - alpha - beta;
-
-    vec3_t weight = { alpha, beta, gamma };
-    return weight;
-}
-
 float vec3_dot(vec3_t v0, vec3_t v1)
 {
     return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z;
