@@ -6,8 +6,9 @@
 #include "mesh.h"
 #include "triangle.h"
 #include "DynamicArray/array.h"
+#include "UPNG/upng.h"
 #include "matrix.h"
-#include "texture.h"
+#include "texture.h" 
 #include "triangle.h"
 #include "light.h"
 
@@ -27,7 +28,7 @@ void setup(void)
     color_buffer = (uint32_t *)malloc(sizeof(uint32_t) * window_width * window_height);
     color_buffer_texture = SDL_CreateTexture(
         renderer,
-        SDL_PIXELFORMAT_ARGB8888,
+        SDL_PIXELFORMAT_RGBA32,
         SDL_TEXTUREACCESS_STREAMING,
         window_width,
         window_height);
@@ -39,11 +40,13 @@ void setup(void)
 
     projection_matrix = mat4_make_perspective(fov, aspect, z_near, z_far);
 
-    mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
-    texture_width = 64;
-    texture_height = 64;
-    // load_obj_file_data("../assets/f22.obj");
+    // mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
+    // texture_width = 64;
+    // texture_height = 64;
+
+    // load_obj_file_data("../assets/meshes/cube.obj");
     load_cube_mesh_data();
+    load_png_texture_data("../assets/textures/cube.png");
 }
 
 void process_input(void)
@@ -305,6 +308,7 @@ void free_resources()
     array_free(mesh.vertices);
     array_free(color_buffer);
     array_free(triangles_to_render);
+    upng_free(png_texture);
 }
 
 int main(void)

@@ -9,6 +9,6 @@ file(GLOB src "src/*.h" "src/*.c")
 file(GLOB DynamicArray "src/DynamicArray/*.h" "src/DynamicArray/*.c")
 file(GLOB UPNG "src/UPNG/*.h" "src/UPNG/*.c")
 
-add_executable(${PROJECT_NAME} ${src} ${DynamicArray})
+add_executable(${PROJECT_NAME} ${src} ${DynamicArray} ${UPNG})
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
