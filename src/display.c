@@ -6,8 +6,8 @@ SDL_Renderer* renderer = NULL;
 uint32_t* color_buffer = NULL;
 SDL_Texture* color_buffer_texture = NULL;
 
-int window_width = 1920;
-int window_height = 1080;
+int window_width = 800;
+int window_height = 600;
 
 bool initialize_window(void)
 {
@@ -20,8 +20,8 @@ bool initialize_window(void)
     SDL_DisplayMode display_mode;
     SDL_GetCurrentDisplayMode(0, &display_mode);
 
-    // window_width = display_mode.w / 2;
-    // window_height = display_mode.h / 2;
+    // window_width = display_mode.w;
+    // window_height = display_mode.h;
 
     window = SDL_CreateWindow(
         "3D Renderer",
