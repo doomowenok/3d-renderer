@@ -124,17 +124,14 @@ void draw_texel(int x, int y, uint32_t *texture,
     interpolated_u /= interpolated_reciprocal_w;
     interpolated_v /= interpolated_reciprocal_w;
 
-    int tex_x = abs((int)(interpolated_u * texture_width)); 
-    int tex_y = abs((int)(interpolated_v * texture_height));
+    // Use reminder (%) for clamp, because alpha, beta, gamma can be < 0 and > 1 
+    // x,y positions can be outside of triangle
+    int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width; 
+    int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
     int color_index = texture_width * tex_y + tex_x;
-
-    if(color_index > window_width * window_height)
-    {
-        return;
-    }
-
     uint32_t color = texture[color_index];
+    
     draw_pixel(x, y, color);
 }
 
