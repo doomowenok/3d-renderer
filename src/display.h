@@ -27,6 +27,7 @@ enum render_method
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 extern uint32_t* color_buffer;
+extern float* z_buffer;
 extern SDL_Texture* color_buffer_texture;
 extern int window_width;
 extern int window_height;
@@ -38,6 +39,7 @@ void draw_line(const int x0, const int y0, const int x1, const int y1, const uin
 void draw_rect(const int x, const int y, const int width, const  int height, const uint32_t color);
 void render_color_buffer(void);
 void clear_color_buffer(const uint32_t color);
+void clear_z_buffer();
 void destroy_window(void);
 
 #endif

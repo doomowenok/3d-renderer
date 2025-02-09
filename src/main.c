@@ -25,7 +25,8 @@ void setup(void)
     render_method = RENDER_WIRE;
     cull_method = CULL_BACKFACE;
 
-    color_buffer = (uint32_t *)malloc(sizeof(uint32_t) * window_width * window_height);
+    color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * window_width * window_height);
+    z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
     color_buffer_texture = SDL_CreateTexture(
         renderer,
         SDL_PIXELFORMAT_RGBA32,
@@ -99,24 +100,6 @@ void process_input(void)
         break;
     default:
         break;
-    }
-}
-
-void sort_triangles_by_depth()
-{
-    int num_triangles = array_length(triangles_to_render);
-
-    for (int i = 0; i < num_triangles; i++)
-    {
-        for (int j = 0; j < num_triangles - i - 1; j++)
-        {
-            if (triangles_to_render[j].avg_depth < triangles_to_render[j + 1].avg_depth)
-            {
-                triangle_t temp = triangles_to_render[j];
-                triangles_to_render[j] = triangles_to_render[j + 1];
-                triangles_to_render[j + 1] = temp;
-            }
-        }
     }
 }
 
@@ -219,8 +202,6 @@ void update(void)
             projected_points[j].y += (window_height / 2.0f);
         }
 
-        float depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0f;
-
         float light_intensity_factor = -vec3_dot(normal, light.direction);
 
         uint32_t triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
@@ -234,7 +215,6 @@ void update(void)
                     {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
                 },
             .color = triangle_color,
-            .avg_depth = depth,
             .texcoords = 
                 {
                     { mesh_face.a_uv.u, mesh_face.a_uv.v },
@@ -245,8 +225,6 @@ void update(void)
 
         array_push(triangles_to_render, projected_triangle);
     }
-
-    sort_triangles_by_depth();
 }
 
 void render(void)
@@ -261,9 +239,9 @@ void render(void)
         if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE)
         {
             draw_filled_triangle(
-                triangle.points[0].x, triangle.points[0].y,
-                triangle.points[1].x, triangle.points[1].y,
-                triangle.points[2].x, triangle.points[2].y,
+                triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w,
+                triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w,
+                triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w,
                 triangle.color);
         }
 
@@ -298,6 +276,7 @@ void render(void)
     render_color_buffer();
 
     clear_color_buffer(0xFF000000);
+    clear_z_buffer();
 
     SDL_RenderPresent(renderer);
 }
@@ -307,6 +286,7 @@ void free_resources()
     array_free(mesh.faces);
     array_free(mesh.vertices);
     array_free(color_buffer);
+    array_free(z_buffer);
     array_free(triangles_to_render);
     upng_free(png_texture);
 }
