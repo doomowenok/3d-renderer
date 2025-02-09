@@ -12,7 +12,9 @@
 #include "triangle.h"
 #include "light.h"
 
-triangle_t *triangles_to_render = NULL;
+#define MAX_TRIANGLES_PER_MESH 10000
+triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
+uint num_triangles_to_render = 0; 
 
 bool is_running = false;
 uint32_t previous_frame_time = 0;
@@ -45,9 +47,9 @@ void setup(void)
     // texture_width = 64;
     // texture_height = 64;
 
-    load_obj_file_data("../assets/meshes/crab.obj");
+    load_obj_file_data("../assets/meshes/drone.obj");
     // load_cube_mesh_data();
-    load_png_texture_data("../assets/textures/crab.png");
+    load_png_texture_data("../assets/textures/drone.png");
 }
 
 void process_input(void)
@@ -114,7 +116,7 @@ void update(void)
 
     previous_frame_time = SDL_GetTicks();
 
-    triangles_to_render = NULL;
+    num_triangles_to_render = 0;
 
     // mesh.rotation.x += 0.03f;
     mesh.rotation.y += 0.03f;
@@ -223,7 +225,11 @@ void update(void)
                 }
         };
 
-        array_push(triangles_to_render, projected_triangle);
+        if(num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
+        {
+            triangles_to_render[num_triangles_to_render] = projected_triangle;
+            num_triangles_to_render++;
+        }
     }
 }
 
@@ -231,8 +237,7 @@ void render(void)
 {
     SDL_RenderClear(renderer);
 
-    int num_triangles = array_length(triangles_to_render);
-    for (int i = 0; i < num_triangles; i++)
+    for (int i = 0; i < num_triangles_to_render; i++)
     {
         triangle_t triangle = triangles_to_render[i];
 
@@ -271,8 +276,6 @@ void render(void)
         }
     }
 
-    array_free(triangles_to_render);
-
     render_color_buffer();
 
     clear_color_buffer(0xFF000000);
@@ -287,7 +290,6 @@ void free_resources()
     array_free(mesh.vertices);
     array_free(color_buffer);
     array_free(z_buffer);
-    array_free(triangles_to_render);
     upng_free(png_texture);
 }
 
