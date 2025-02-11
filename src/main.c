@@ -19,6 +19,7 @@ uint num_triangles_to_render = 0;
 
 bool is_running = false;
 uint32_t previous_frame_time = 0;
+float delta_time = 0.0f;
 
 mat4_t projection_matrix;
 mat4_t world_matrix;
@@ -116,12 +117,14 @@ void update(void)
         SDL_Delay(time_to_wait);
     }
 
+    delta_time = (SDL_GetTicks() - previous_frame_time) / 1000.0f;
+
     previous_frame_time = SDL_GetTicks();
 
     num_triangles_to_render = 0;
 
     // mesh.rotation.x += 0.03f;
-    mesh.rotation.y += 0.03f;
+    mesh.rotation.y += 1.0f * delta_time;
     // mesh.rotation.z += 0.03f;
 
     // mesh.scale.x += 0.0001f;
@@ -130,7 +133,7 @@ void update(void)
     // mesh.translation.x += 0.001f;
     mesh.translation.z = 5.0f;
 
-    camera.position.y += 0.01f;
+    camera.position.y += 0.01f * delta_time;
 
     vec3_t target = { 0.0f, 0.0f, 10.0f };
     vec3_t up_direction = { 0.0f, 1.0f, 0.0f };
