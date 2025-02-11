@@ -109,6 +109,35 @@ vec4_t mat4_mul_vec4_projection(mat4_t projection_matrix, vec4_t v)
     return result;
 }
 
+mat4_t mat4_look_at(vec3_t eye, vec3_t target, vec3_t up)
+{
+    vec3_t z = vec3_sub(target, eye);
+    vec3_normalize(&z);
+    vec3_t x = vec3_cross(up, z);
+    vec3_normalize(&x);
+    vec3_t y = vec3_cross(z, x);
+    vec3_normalize(&y);
+
+    mat4_t view_matrix = mat4_identity();
+    
+    view_matrix.m[0][0] = x.x;
+    view_matrix.m[0][1] = x.y;
+    view_matrix.m[0][2] = x.z;
+    view_matrix.m[0][3] = -vec3_dot(x, eye);
+
+    view_matrix.m[1][0] = y.x;
+    view_matrix.m[1][1] = y.y;
+    view_matrix.m[1][2] = y.z;
+    view_matrix.m[1][3] = -vec3_dot(y, eye);
+
+    view_matrix.m[2][0] = z.x;
+    view_matrix.m[2][1] = z.y;
+    view_matrix.m[2][2] = z.z;
+    view_matrix.m[2][3] = -vec3_dot(z, eye);
+
+    return view_matrix;
+}
+
 mat4_t mat4_make_perspective(float fov, float aspect, float z_near, float z_far)
 {
     mat4_t m = {{{ 0 }}};

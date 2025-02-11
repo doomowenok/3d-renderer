@@ -11,6 +11,7 @@
 #include "texture.h" 
 #include "triangle.h"
 #include "light.h"
+#include "camera.h"
 
 #define MAX_TRIANGLES_PER_MESH 10000
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
@@ -19,8 +20,9 @@ uint num_triangles_to_render = 0;
 bool is_running = false;
 uint32_t previous_frame_time = 0;
 
-vec3_t camera_position = {.x = 0.0f, .y = 0.0f, .z = 0.0f};
 mat4_t projection_matrix;
+mat4_t world_matrix;
+mat4_t view_matrix;
 
 void setup(void)
 {
@@ -128,6 +130,12 @@ void update(void)
     // mesh.translation.x += 0.001f;
     mesh.translation.z = 5.0f;
 
+    camera.position.y += 0.01f;
+
+    vec3_t target = { 0.0f, 0.0f, 10.0f };
+    vec3_t up_direction = { 0.0f, 1.0f, 0.0f };
+    view_matrix = mat4_look_at(camera.position, target, up_direction);
+
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
 
     mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
@@ -152,7 +160,7 @@ void update(void)
         {
             vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 
-            mat4_t world_matrix = mat4_identity();
+            world_matrix = mat4_identity();
 
             world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
             world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
@@ -161,6 +169,8 @@ void update(void)
             world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
             transformed_vertex = mat4_mul_vec4(world_matrix, transformed_vertex);
+
+            transformed_vertex = mat4_mul_vec4(view_matrix, transformed_vertex);
 
             transformed_vertices[j] = transformed_vertex;
         }
@@ -177,7 +187,8 @@ void update(void)
         vec3_t normal = vec3_cross(vector_ab, vector_ac);
         vec3_normalize(&normal);
 
-        vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+        vec3_t origin = { 0.0f, 0.0f, 0.0f };
+        vec3_t camera_ray = vec3_sub(origin, vector_a);
 
         float dot_normal_camera = vec3_dot(normal, camera_ray);
 
