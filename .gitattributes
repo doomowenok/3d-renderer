@@ -1,2 +1,14 @@
 cube.obj filter=lfs diff=lfs merge=lfs -text
 f22.obj filter=lfs diff=lfs merge=lfs -text
+drone.obj filter=lfs diff=lfs merge=lfs -text
+efa.obj filter=lfs diff=lfs merge=lfs -text
+crab.obj filter=lfs diff=lfs merge=lfs -text
+f117.obj filter=lfs diff=lfs merge=lfs -text
+sphere.obj filter=lfs diff=lfs merge=lfs -text
+crab.png filter=lfs diff=lfs merge=lfs -text
+cube.png filter=lfs diff=lfs merge=lfs -text
+drone.png filter=lfs diff=lfs merge=lfs -text
+efa.png filter=lfs diff=lfs merge=lfs -text
+f22.png filter=lfs diff=lfs merge=lfs -text
+f117.png filter=lfs diff=lfs merge=lfs -text
+pikuma.png filter=lfs diff=lfs merge=lfs -text
