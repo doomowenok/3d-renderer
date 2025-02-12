@@ -8,14 +8,14 @@
 #include "DynamicArray/array.h"
 #include "UPNG/upng.h"
 #include "matrix.h"
-#include "texture.h" 
+#include "texture.h"
 #include "triangle.h"
 #include "light.h"
 #include "camera.h"
 
 #define MAX_TRIANGLES_PER_MESH 10000
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
-uint num_triangles_to_render = 0; 
+uint num_triangles_to_render = 0;
 
 bool is_running = false;
 uint32_t previous_frame_time = 0;
@@ -30,8 +30,8 @@ void setup(void)
     render_method = RENDER_WIRE;
     cull_method = CULL_BACKFACE;
 
-    color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * window_width * window_height);
-    z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
+    color_buffer = (uint32_t *)malloc(sizeof(uint32_t) * window_width * window_height);
+    z_buffer = (float *)malloc(sizeof(float) * window_width * window_height);
     color_buffer_texture = SDL_CreateTexture(
         renderer,
         SDL_PIXELFORMAT_RGBA32,
@@ -66,10 +66,6 @@ void process_input(void)
         is_running = false;
         break;
     case SDL_KEYDOWN:
-        if (event.key.keysym.sym == SDLK_ESCAPE)
-        {
-            is_running = false;
-        }
         if (event.key.keysym.sym == SDLK_1)
         {
             render_method = RENDER_WIRE_VERTEX;
@@ -98,9 +94,35 @@ void process_input(void)
         {
             cull_method = CULL_BACKFACE;
         }
-        if (event.key.keysym.sym == SDLK_d)
+        if (event.key.keysym.sym == SDLK_x)
         {
             cull_method = CULL_NONE;
+        }
+        if (event.key.keysym.sym ==  SDLK_w)
+        {
+            camera.forward_velocity = vec3_mul(camera.direction, 5.0f * delta_time);
+            camera.position = vec3_add(camera.position, camera.forward_velocity);
+        }
+        if (event.key.keysym.sym ==  SDLK_s)
+        {
+            camera.forward_velocity = vec3_mul(camera.direction, -5.0f * delta_time);
+            camera.position = vec3_add(camera.position, camera.forward_velocity);
+        }
+        if (event.key.keysym.sym ==  SDLK_a)
+        {
+            camera.yaw_angle += 1.0f * delta_time;
+        }
+        if (event.key.keysym.sym ==  SDLK_d)
+        {
+            camera.yaw_angle += -1.0f * delta_time;
+        }
+        if (event.key.keysym.sym ==  SDLK_UP)
+        {
+            camera.position.y += 1.0f * delta_time;
+        }
+        if (event.key.keysym.sym ==  SDLK_DOWN)
+        {
+            camera.position.y += -1.0f * delta_time;
         }
         break;
     default:
@@ -123,20 +145,19 @@ void update(void)
 
     num_triangles_to_render = 0;
 
-    // mesh.rotation.x += 0.03f;
+    mesh.rotation.x += 0.0f * delta_time;
     mesh.rotation.y += 1.0f * delta_time;
-    // mesh.rotation.z += 0.03f;
-
-    // mesh.scale.x += 0.0001f;
-    // mesh.scale.y += 0.0001f;
-
-    // mesh.translation.x += 0.001f;
+    mesh.rotation.z += 0.0f * delta_time;
     mesh.translation.z = 5.0f;
 
-    camera.position.y += 0.01f * delta_time;
+    vec3_t up_direction = {0.0f, 1.0f, 0.0f};
+    vec3_t target = { 0.0f, 0.0f, 1.0f };
 
-    vec3_t target = { 0.0f, 0.0f, 10.0f };
-    vec3_t up_direction = { 0.0f, 1.0f, 0.0f };
+    mat4_t camera_rotation = mat4_make_rotation_y(camera.yaw_angle);
+    camera.direction = vec3_from_vec4(mat4_mul_vec4(camera_rotation, vec4_from_vec3(target)));
+
+    target = vec3_add(camera.position, camera.direction);
+
     view_matrix = mat4_look_at(camera.position, target, up_direction);
 
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -190,7 +211,7 @@ void update(void)
         vec3_t normal = vec3_cross(vector_ab, vector_ac);
         vec3_normalize(&normal);
 
-        vec3_t origin = { 0.0f, 0.0f, 0.0f };
+        vec3_t origin = {0.0f, 0.0f, 0.0f};
         vec3_t camera_ray = vec3_sub(origin, vector_a);
 
         float dot_normal_camera = vec3_dot(normal, camera_ray);
@@ -223,23 +244,21 @@ void update(void)
         uint32_t triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
 
         triangle_t projected_triangle =
-        {
-            .points =
-                {
-                    {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
-                    {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
-                    {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
-                },
-            .color = triangle_color,
-            .texcoords = 
-                {
-                    { mesh_face.a_uv.u, mesh_face.a_uv.v },
-                    { mesh_face.b_uv.u, mesh_face.b_uv.v },
-                    { mesh_face.c_uv.u, mesh_face.c_uv.v },
-                }
-        };
+            {
+                .points =
+                    {
+                        {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
+                        {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
+                        {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}},
+                .color = triangle_color,
+                .texcoords =
+                    {
+                        {mesh_face.a_uv.u, mesh_face.a_uv.v},
+                        {mesh_face.b_uv.u, mesh_face.b_uv.v},
+                        {mesh_face.c_uv.u, mesh_face.c_uv.v},
+                    }};
 
-        if(num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
+        if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
         {
             triangles_to_render[num_triangles_to_render] = projected_triangle;
             num_triangles_to_render++;
