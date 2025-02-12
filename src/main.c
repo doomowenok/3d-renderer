@@ -146,7 +146,7 @@ void update(void)
     num_triangles_to_render = 0;
 
     mesh.rotation.x += 0.0f * delta_time;
-    mesh.rotation.y += 1.0f * delta_time;
+    mesh.rotation.y += 0.0f * delta_time;
     mesh.rotation.z += 0.0f * delta_time;
     mesh.translation.z = 5.0f;
 
