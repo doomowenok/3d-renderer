@@ -3,6 +3,8 @@
 
 #include "vector.h"
 
+#define NUM_PLANES 6
+
 enum
 {
     LEFT_FRUSTRUM_PLANE,
@@ -18,5 +20,9 @@ typedef struct
     vec3_t point;
     vec3_t normal;
 } plane_t;
+
+extern plane_t frustrum_planes[NUM_PLANES];
+
+void init_frustrum_planes(float fov, float z_near, float z_far);
 
 #endif
