@@ -12,6 +12,7 @@
 #include "triangle.h"
 #include "light.h"
 #include "camera.h"
+#include "clipping.h"
 
 #define MAX_TRIANGLES_PER_MESH 10000
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
@@ -45,6 +46,8 @@ void setup(void)
     float z_far = 100.0f;
 
     projection_matrix = mat4_make_perspective(fov, aspect, z_near, z_far);
+    init_frustrum_planes(fov, z_near, z_far);
+
 
     // mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
     // texture_width = 64;
