@@ -48,7 +48,6 @@ void setup(void)
     projection_matrix = mat4_make_perspective(fov, aspect, z_near, z_far);
     init_frustrum_planes(fov, z_near, z_far);
 
-
     // mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
     // texture_width = 64;
     // texture_height = 64;
@@ -101,29 +100,29 @@ void process_input(void)
         {
             cull_method = CULL_NONE;
         }
-        if (event.key.keysym.sym ==  SDLK_w)
+        if (event.key.keysym.sym == SDLK_w)
         {
             camera.forward_velocity = vec3_mul(camera.direction, 5.0f * delta_time);
             camera.position = vec3_add(camera.position, camera.forward_velocity);
         }
-        if (event.key.keysym.sym ==  SDLK_s)
+        if (event.key.keysym.sym == SDLK_s)
         {
             camera.forward_velocity = vec3_mul(camera.direction, -5.0f * delta_time);
             camera.position = vec3_add(camera.position, camera.forward_velocity);
         }
-        if (event.key.keysym.sym ==  SDLK_a)
+        if (event.key.keysym.sym == SDLK_a)
         {
             camera.yaw_angle += 1.0f * delta_time;
         }
-        if (event.key.keysym.sym ==  SDLK_d)
+        if (event.key.keysym.sym == SDLK_d)
         {
             camera.yaw_angle += -1.0f * delta_time;
         }
-        if (event.key.keysym.sym ==  SDLK_UP)
+        if (event.key.keysym.sym == SDLK_UP)
         {
             camera.position.y += 1.0f * delta_time;
         }
-        if (event.key.keysym.sym ==  SDLK_DOWN)
+        if (event.key.keysym.sym == SDLK_DOWN)
         {
             camera.position.y += -1.0f * delta_time;
         }
@@ -154,7 +153,7 @@ void update(void)
     mesh.translation.z = 5.0f;
 
     vec3_t up_direction = {0.0f, 1.0f, 0.0f};
-    vec3_t target = { 0.0f, 0.0f, 1.0f };
+    vec3_t target = {0.0f, 0.0f, 1.0f};
 
     mat4_t camera_rotation = mat4_make_rotation_y(camera.yaw_angle);
     camera.direction = vec3_from_vec4(mat4_mul_vec4(camera_rotation, vec4_from_vec3(target)));
@@ -174,11 +173,6 @@ void update(void)
     int num_faces = array_length(mesh.faces);
     for (int i = 0; i < num_faces; i++)
     {
-        if(i != 4)
-        {
-            continue;
-        }
-
         face_t mesh_face = mesh.faces[i];
 
         vec3_t face_vertices[3];
@@ -233,50 +227,58 @@ void update(void)
         }
 
         polygon_t polygon = create_polygon_from_triangle(
-            vec3_from_vec4(transformed_vertices[0]), 
-            vec3_from_vec4(transformed_vertices[1]), 
+            vec3_from_vec4(transformed_vertices[0]),
+            vec3_from_vec4(transformed_vertices[1]),
             vec3_from_vec4(transformed_vertices[2]));
-
         clip_polygon(&polygon);
 
-        vec4_t projected_points[3];
+        triangle_t triangles_after_clipping[MAX_NUM_POLY_TRIANGLES];
+        int num_triangles_after_clipping = 0;
+        triangles_from_polygon(&polygon, triangles_after_clipping, &num_triangles_after_clipping);
 
-        for (int j = 0; j < 3; j++)
+        for (int t = 0; t < num_triangles_after_clipping; t++)
         {
-            projected_points[j] = mat4_mul_vec4_projection(projection_matrix, transformed_vertices[j]);
+            triangle_t triangle_after_clipping = triangles_after_clipping[t];
 
-            projected_points[j].x *= (window_width / 2.0f);
-            projected_points[j].y *= (window_height / 2.0f);
+            vec4_t projected_points[3];
 
-            projected_points[j].y *= -1.0f;
-
-            projected_points[j].x += (window_width / 2.0f);
-            projected_points[j].y += (window_height / 2.0f);
-        }
-
-        float light_intensity_factor = -vec3_dot(normal, light.direction);
-
-        uint32_t triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
-
-        triangle_t projected_triangle =
+            for (int j = 0; j < 3; j++)
             {
-                .points =
-                    {
-                        {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
-                        {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
-                        {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}},
-                .color = triangle_color,
-                .texcoords =
-                    {
-                        {mesh_face.a_uv.u, mesh_face.a_uv.v},
-                        {mesh_face.b_uv.u, mesh_face.b_uv.v},
-                        {mesh_face.c_uv.u, mesh_face.c_uv.v},
-                    }};
+                projected_points[j] = mat4_mul_vec4_projection(projection_matrix, triangle_after_clipping.points[j]);
 
-        if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
-        {
-            triangles_to_render[num_triangles_to_render] = projected_triangle;
-            num_triangles_to_render++;
+                projected_points[j].x *= (window_width / 2.0f);
+                projected_points[j].y *= (window_height / 2.0f);
+
+                projected_points[j].y *= -1.0f;
+
+                projected_points[j].x += (window_width / 2.0f);
+                projected_points[j].y += (window_height / 2.0f);
+            }
+
+            float light_intensity_factor = -vec3_dot(normal, light.direction);
+
+            uint32_t triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
+
+            triangle_t triangle_to_render =
+                {
+                    .points =
+                        {
+                            {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
+                            {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
+                            {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}},
+                    .color = triangle_color,
+                    .texcoords =
+                        {
+                            {mesh_face.a_uv.u, mesh_face.a_uv.v},
+                            {mesh_face.b_uv.u, mesh_face.b_uv.v},
+                            {mesh_face.c_uv.u, mesh_face.c_uv.v},
+                        }};
+
+            if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
+            {
+                triangles_to_render[num_triangles_to_render] = triangle_to_render;
+                num_triangles_to_render++;
+            }
         }
     }
 }
