@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+#include <stdlib.h>
+#include <math.h>
 #include "display.h"
 #include "vector.h"
 #include "mesh.h"
