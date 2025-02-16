@@ -3,30 +3,33 @@
 
 plane_t frustrum_planes[NUM_PLANES];
 
-void init_frustrum_planes(float fov, float z_near, float z_far)
+void init_frustrum_planes(float fov_x, float fov_y, float z_near, float z_far)
 {
-    float cos_half_fov = cos(fov / 2.0f);
-    float sin_half_fov = sin(fov / 2.0f);
+    float cos_half_fov_x = cos(fov_x / 2.0f);
+    float sin_half_fov_x = sin(fov_x / 2.0f);
+
+    float cos_half_fov_y = cos(fov_y / 2.0f);
+    float sin_half_fov_y = sin(fov_y / 2.0f);
 
     frustrum_planes[LEFT_FRUSTRUM_PLANE].point = vec3_new(0.0f, 0.0f, 0.0f);
-    frustrum_planes[LEFT_FRUSTRUM_PLANE].normal.x = cos_half_fov;
+    frustrum_planes[LEFT_FRUSTRUM_PLANE].normal.x = cos_half_fov_x;
     frustrum_planes[LEFT_FRUSTRUM_PLANE].normal.y = 0.0f;
-    frustrum_planes[LEFT_FRUSTRUM_PLANE].normal.z = sin_half_fov;
+    frustrum_planes[LEFT_FRUSTRUM_PLANE].normal.z = sin_half_fov_x;
 
     frustrum_planes[RIGHT_FRUSTRUM_PLANE].point = vec3_new(0.0f, 0.0f, 0.0f);
-    frustrum_planes[RIGHT_FRUSTRUM_PLANE].normal.x = -cos_half_fov;
+    frustrum_planes[RIGHT_FRUSTRUM_PLANE].normal.x = -cos_half_fov_x;
     frustrum_planes[RIGHT_FRUSTRUM_PLANE].normal.y = 0.0f;
-    frustrum_planes[RIGHT_FRUSTRUM_PLANE].normal.z = sin_half_fov;
+    frustrum_planes[RIGHT_FRUSTRUM_PLANE].normal.z = sin_half_fov_x;
 
     frustrum_planes[TOP_FRUSTRUM_PLANE].point = vec3_new(0.0f, 0.0f, 0.0f);
     frustrum_planes[TOP_FRUSTRUM_PLANE].normal.x = 0.0f;
-    frustrum_planes[TOP_FRUSTRUM_PLANE].normal.y = -cos_half_fov;
-    frustrum_planes[TOP_FRUSTRUM_PLANE].normal.z = sin_half_fov;
+    frustrum_planes[TOP_FRUSTRUM_PLANE].normal.y = -cos_half_fov_y;
+    frustrum_planes[TOP_FRUSTRUM_PLANE].normal.z = sin_half_fov_y;
 
     frustrum_planes[BOTTOM_FRUSTRUM_PLANE].point = vec3_new(0.0f, 0.0f, 0.0f);
     frustrum_planes[BOTTOM_FRUSTRUM_PLANE].normal.x = 0.0f;
-    frustrum_planes[BOTTOM_FRUSTRUM_PLANE].normal.y = cos_half_fov;
-    frustrum_planes[BOTTOM_FRUSTRUM_PLANE].normal.z = sin_half_fov;
+    frustrum_planes[BOTTOM_FRUSTRUM_PLANE].normal.y = cos_half_fov_y;
+    frustrum_planes[BOTTOM_FRUSTRUM_PLANE].normal.z = sin_half_fov_y;
 
     frustrum_planes[NEAR_FRUSTRUM_PLANE].point = vec3_new(0.0f, 0.0f, z_near);
     frustrum_planes[NEAR_FRUSTRUM_PLANE].normal.x = 0.0f;

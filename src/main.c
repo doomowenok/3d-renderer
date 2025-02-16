@@ -40,21 +40,18 @@ void setup(void)
         window_width,
         window_height);
 
-    float fov = M_PI / 3.0f;
-    float aspect = (float)window_height / (float)window_width;
+    float aspect_y = (float)window_height / (float)window_width;
+    float aspect_x = (float)window_width / (float)window_height;
+    float fov_y = M_PI / 3.0f;
+    float fov_x = atan(tan(fov_y / 2) * aspect_x) * 2;
     float z_near = 0.1f;
     float z_far = 100.0f;
 
-    projection_matrix = mat4_make_perspective(fov, aspect, z_near, z_far);
-    init_frustrum_planes(fov, z_near, z_far);
-
-    // mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
-    // texture_width = 64;
-    // texture_height = 64;
+    projection_matrix = mat4_make_perspective(fov_y, aspect_y, z_near, z_far);
+    init_frustrum_planes(fov_x, fov_y, z_near, z_far);
 
     load_obj_file_data("../assets/meshes/cube.obj");
-    // load_cube_mesh_data();
-    load_png_texture_data("../assets/textures/drone.png");
+    load_png_texture_data("../assets/textures/drone.png"); 
 }
 
 void process_input(void)
@@ -112,19 +109,19 @@ void process_input(void)
         }
         if (event.key.keysym.sym == SDLK_a)
         {
-            camera.yaw_angle += 1.0f * delta_time;
+            camera.yaw_angle += 2.0f * delta_time;
         }
         if (event.key.keysym.sym == SDLK_d)
         {
-            camera.yaw_angle += -1.0f * delta_time;
+            camera.yaw_angle += -2.0f * delta_time;
         }
         if (event.key.keysym.sym == SDLK_UP)
         {
-            camera.position.y += 1.0f * delta_time;
+            camera.position.y += 2.0f * delta_time;
         }
         if (event.key.keysym.sym == SDLK_DOWN)
         {
-            camera.position.y += -1.0f * delta_time;
+            camera.position.y += -2.0f * delta_time;
         }
         break;
     default:
