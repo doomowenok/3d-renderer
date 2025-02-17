@@ -283,7 +283,9 @@ void update(void)
                                 {triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v},
                                 {triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v},
                                 {triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v},
-                            }};
+                            },
+                        .texture = mesh->texture,
+                    };
 
                 if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
                 {
@@ -315,11 +317,11 @@ void render(void)
 
         if (should_render_textured_triangles())
         {
-            // draw_textured_triangle(
-            //     triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v,
-            //     triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v,
-            //     triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v,
-            //     mesh_texture);
+            draw_textured_triangle(
+                triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v,
+                triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v,
+                triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v,
+                triangle.texture);
         }
 
         if (should_render_wireframe())
