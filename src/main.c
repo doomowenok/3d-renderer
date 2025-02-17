@@ -34,6 +34,7 @@ void setup(void)
     set_cull_method(CULL_BACKFACE);
 
     init_light(vec3_new(0.0f, 0.0f, 1.0f));
+    init_camera(vec3_new(0.0f, 0.0f, 0.0f), vec3_new(0.0f, 0.0f, 1.0f));
     
     float aspect_y = (float)get_window_height() / (float)get_window_width();
     float aspect_x = (float)get_window_width() / (float)get_window_height();
@@ -104,34 +105,34 @@ void process_input(void)
             }
             if (event.key.keysym.sym == SDLK_w)
             {
-                camera.forward_velocity = vec3_mul(camera.direction, 5.0f * delta_time);
-                camera.position = vec3_add(camera.position, camera.forward_velocity);
+                update_camera_forward_velocity(vec3_mul(get_camera_direction(), 5.0f * delta_time));
+                update_camera_position(vec3_add(get_camera_position(), get_camera_forward_velocity()));
                 break;
             }
             if (event.key.keysym.sym == SDLK_s)
             {
-                camera.forward_velocity = vec3_mul(camera.direction, -5.0f * delta_time);
-                camera.position = vec3_add(camera.position, camera.forward_velocity);
+                update_camera_forward_velocity(vec3_mul(get_camera_direction(), -5.0f * delta_time));
+                update_camera_position(vec3_add(get_camera_position(), get_camera_forward_velocity()));
                 break;
             }
             if (event.key.keysym.sym == SDLK_a)
             {
-                camera.yaw_angle += 2.0f * delta_time;
+                rotate_camera_yaw(2.0f * delta_time);
                 break;
             }
             if (event.key.keysym.sym == SDLK_d)
             {
-                camera.yaw_angle += -2.0f * delta_time;
+                rotate_camera_yaw(-2.0f * delta_time);
                 break;
             }
             if (event.key.keysym.sym == SDLK_UP)
             {
-                camera.position.y += 2.0f * delta_time;
+                rotate_camera_pitch(2.0f * delta_time);
                 break;
             }
             if (event.key.keysym.sym == SDLK_DOWN)
             {
-                camera.position.y += -2.0f * delta_time;
+                rotate_camera_pitch(-2.0f * delta_time);
                 break;
             }
             break;
@@ -156,28 +157,21 @@ void update(void)
 
     num_triangles_to_render = 0;
 
-    mesh.rotation.x += 0.5f * delta_time;
-    mesh.rotation.y += 0.0f * delta_time;
-    mesh.rotation.z += 0.0f * delta_time;
-    mesh.translation.z = 5.0f;
-
-    vec3_t up_direction = {0.0f, 1.0f, 0.0f};
-    vec3_t target = {0.0f, 0.0f, 1.0f};
-
-    mat4_t camera_rotation = mat4_make_rotation_y(camera.yaw_angle);
-    camera.direction = vec3_from_vec4(mat4_mul_vec4(camera_rotation, vec4_from_vec3(target)));
-
-    target = vec3_add(camera.position, camera.direction);
-
-    view_matrix = mat4_look_at(camera.position, target, up_direction);
-
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
-
+    mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
     mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
     mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
     mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
 
-    mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
+    mesh.rotation.x += 0.5f * delta_time;
+    mesh.rotation.y += 0.0f * delta_time;
+    mesh.rotation.z += 0.0f * delta_time;
+    mesh.translation.z = 5.0f;
+    
+    vec3_t target = get_camera_lookat_target();
+    vec3_t up_direction = {0.0f, 1.0f, 0.0f};
+    
+    view_matrix = mat4_look_at(get_camera_position(), target, up_direction);
 
     int num_faces = array_length(mesh.faces);
     for (int i = 0; i < num_faces; i++)
