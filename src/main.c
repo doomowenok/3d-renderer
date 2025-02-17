@@ -33,18 +33,20 @@ void setup(void)
     set_render_method(RENDER_WIRE);
     set_cull_method(CULL_BACKFACE);
 
+    init_light(vec3_new(0.0f, 0.0f, 1.0f));
+    
     float aspect_y = (float)get_window_height() / (float)get_window_width();
     float aspect_x = (float)get_window_width() / (float)get_window_height();
     float fov_y = M_PI / 3.0f;
     float fov_x = atan(tan(fov_y / 2) * aspect_x) * 2;
     float z_near = 0.1f;
     float z_far = 100.0f;
-
     projection_matrix = mat4_make_perspective(fov_y, aspect_y, z_near, z_far);
+
     init_frustrum_planes(fov_x, fov_y, z_near, z_far);
 
-    load_obj_file_data("../assets/meshes/cube.obj");
-    load_png_texture_data("../assets/textures/drone.png");
+    load_obj_file_data("../assets/meshes/f22.obj");
+    load_png_texture_data("../assets/textures/f22.png");
 }
 
 void process_input(void)
@@ -54,10 +56,12 @@ void process_input(void)
     {
         switch (event.type)
         {
-        case SDL_QUIT:
-            is_running = false;
-            break;
         case SDL_KEYDOWN:
+            if(event.key.keysym.sym == SDLK_ESCAPE)
+            {
+                is_running = false;
+                break;
+            }
             if (event.key.keysym.sym == SDLK_1)
             {
                 set_render_method(RENDER_WIRE_VERTEX);
@@ -152,7 +156,7 @@ void update(void)
 
     num_triangles_to_render = 0;
 
-    mesh.rotation.x += 0.0f * delta_time;
+    mesh.rotation.x += 0.5f * delta_time;
     mesh.rotation.y += 0.0f * delta_time;
     mesh.rotation.z += 0.0f * delta_time;
     mesh.translation.z = 5.0f;
@@ -263,7 +267,7 @@ void update(void)
                 projected_points[j].y += (get_window_height() / 2.0f);
             }
 
-            float light_intensity_factor = -vec3_dot(normal, light.direction);
+            float light_intensity_factor = -vec3_dot(normal, get_light_direction());
 
             uint32_t triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
 

@@ -8,8 +8,8 @@ static uint32_t *color_buffer = NULL;
 static float *z_buffer = NULL;
 
 static SDL_Texture *color_buffer_texture = NULL;
-static int window_width = 800;
-static int window_height = 600;
+static int window_width = 320;
+static int window_height = 200;
 
 static int render_method;
 static int cull_method;
@@ -25,15 +25,18 @@ bool initialize_window(void)
     SDL_DisplayMode display_mode;
     SDL_GetCurrentDisplayMode(0, &display_mode);
 
-    window_width = display_mode.w / 3;
-    window_height = display_mode.h / 3;
+    int fullscreen_width = display_mode.w / 2;
+    int fullscreen_height = display_mode.h / 2;
+
+    window_width = fullscreen_width / 2;
+    window_height = fullscreen_height / 2;
 
     window = SDL_CreateWindow(
         "3D Renderer",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        window_width,
-        window_height,
+        fullscreen_width,
+        fullscreen_height,
         SDL_WINDOW_BORDERLESS);
 
     if (!window)
@@ -214,7 +217,7 @@ void update_zbuffer_at(int x, int y, float value)
     {
         return;
     }
-    
+
     z_buffer[(window_width * y) + x] = value;
 }
 
