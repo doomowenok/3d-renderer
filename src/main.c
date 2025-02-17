@@ -46,8 +46,8 @@ void setup(void)
 
     init_frustrum_planes(fov_x, fov_y, z_near, z_far);
 
-    load_obj_file_data("../assets/meshes/f22.obj");
-    load_png_texture_data("../assets/textures/f22.png");
+    load_obj_file_data("./assets/meshes/f22.obj");
+    load_png_texture_data("./assets/textures/f22.png");
 }
 
 void process_input(void)
