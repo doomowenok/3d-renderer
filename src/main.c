@@ -30,20 +30,11 @@ mat4_t view_matrix;
 
 void setup(void)
 {
-    render_method = RENDER_WIRE;
-    cull_method = CULL_BACKFACE;
+    set_render_method(RENDER_WIRE);
+    set_cull_method(CULL_BACKFACE);
 
-    color_buffer = (uint32_t *)malloc(sizeof(uint32_t) * window_width * window_height);
-    z_buffer = (float *)malloc(sizeof(float) * window_width * window_height);
-    color_buffer_texture = SDL_CreateTexture(
-        renderer,
-        SDL_PIXELFORMAT_RGBA32,
-        SDL_TEXTUREACCESS_STREAMING,
-        window_width,
-        window_height);
-
-    float aspect_y = (float)window_height / (float)window_width;
-    float aspect_x = (float)window_width / (float)window_height;
+    float aspect_y = (float)get_window_height() / (float)get_window_width();
+    float aspect_x = (float)get_window_width() / (float)get_window_height();
     float fov_y = M_PI / 3.0f;
     float fov_x = atan(tan(fov_y / 2) * aspect_x) * 2;
     float z_near = 0.1f;
@@ -53,81 +44,96 @@ void setup(void)
     init_frustrum_planes(fov_x, fov_y, z_near, z_far);
 
     load_obj_file_data("../assets/meshes/cube.obj");
-    load_png_texture_data("../assets/textures/drone.png"); 
+    load_png_texture_data("../assets/textures/drone.png");
 }
 
 void process_input(void)
 {
     SDL_Event event;
-    SDL_PollEvent(&event);
-
-    switch (event.type)
+    while (SDL_PollEvent(&event))
     {
-    case SDL_QUIT:
-        is_running = false;
-        break;
-    case SDL_KEYDOWN:
-        if (event.key.keysym.sym == SDLK_1)
+        switch (event.type)
         {
-            render_method = RENDER_WIRE_VERTEX;
+        case SDL_QUIT:
+            is_running = false;
+            break;
+        case SDL_KEYDOWN:
+            if (event.key.keysym.sym == SDLK_1)
+            {
+                set_render_method(RENDER_WIRE_VERTEX);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_2)
+            {
+                set_render_method(RENDER_WIRE);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_3)
+            {
+                set_render_method(RENDER_FILL_TRIANGLE);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_4)
+            {
+                set_render_method(RENDER_FILL_TRIANGLE_WIRE);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_5)
+            {
+                set_render_method(RENDER_TEXTURED);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_6)
+            {
+                set_render_method(RENDER_TEXTURED_WIRE);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_c)
+            {
+                set_cull_method(CULL_BACKFACE);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_x)
+            {
+                set_cull_method(CULL_NONE);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_w)
+            {
+                camera.forward_velocity = vec3_mul(camera.direction, 5.0f * delta_time);
+                camera.position = vec3_add(camera.position, camera.forward_velocity);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_s)
+            {
+                camera.forward_velocity = vec3_mul(camera.direction, -5.0f * delta_time);
+                camera.position = vec3_add(camera.position, camera.forward_velocity);
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_a)
+            {
+                camera.yaw_angle += 2.0f * delta_time;
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_d)
+            {
+                camera.yaw_angle += -2.0f * delta_time;
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_UP)
+            {
+                camera.position.y += 2.0f * delta_time;
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_DOWN)
+            {
+                camera.position.y += -2.0f * delta_time;
+                break;
+            }
+            break;
+        default:
+            break;
         }
-        if (event.key.keysym.sym == SDLK_2)
-        {
-            render_method = RENDER_WIRE;
-        }
-        if (event.key.keysym.sym == SDLK_3)
-        {
-            render_method = RENDER_FILL_TRIANGLE;
-        }
-        if (event.key.keysym.sym == SDLK_4)
-        {
-            render_method = RENDER_FILL_TRIANGLE_WIRE;
-        }
-        if (event.key.keysym.sym == SDLK_5)
-        {
-            render_method = RENDER_TEXTURED;
-        }
-        if (event.key.keysym.sym == SDLK_6)
-        {
-            render_method = RENDER_TEXTURED_WIRE;
-        }
-        if (event.key.keysym.sym == SDLK_c)
-        {
-            cull_method = CULL_BACKFACE;
-        }
-        if (event.key.keysym.sym == SDLK_x)
-        {
-            cull_method = CULL_NONE;
-        }
-        if (event.key.keysym.sym == SDLK_w)
-        {
-            camera.forward_velocity = vec3_mul(camera.direction, 5.0f * delta_time);
-            camera.position = vec3_add(camera.position, camera.forward_velocity);
-        }
-        if (event.key.keysym.sym == SDLK_s)
-        {
-            camera.forward_velocity = vec3_mul(camera.direction, -5.0f * delta_time);
-            camera.position = vec3_add(camera.position, camera.forward_velocity);
-        }
-        if (event.key.keysym.sym == SDLK_a)
-        {
-            camera.yaw_angle += 2.0f * delta_time;
-        }
-        if (event.key.keysym.sym == SDLK_d)
-        {
-            camera.yaw_angle += -2.0f * delta_time;
-        }
-        if (event.key.keysym.sym == SDLK_UP)
-        {
-            camera.position.y += 2.0f * delta_time;
-        }
-        if (event.key.keysym.sym == SDLK_DOWN)
-        {
-            camera.position.y += -2.0f * delta_time;
-        }
-        break;
-    default:
-        break;
     }
 }
 
@@ -217,7 +223,7 @@ void update(void)
 
         float dot_normal_camera = vec3_dot(normal, camera_ray);
 
-        if (cull_method == CULL_BACKFACE)
+        if (is_cull_backface())
         {
             if (dot_normal_camera < 0)
             {
@@ -248,13 +254,13 @@ void update(void)
             {
                 projected_points[j] = mat4_mul_vec4_projection(projection_matrix, triangle_after_clipping.points[j]);
 
-                projected_points[j].x *= (window_width / 2.0f);
-                projected_points[j].y *= (window_height / 2.0f);
+                projected_points[j].x *= (get_window_width() / 2.0f);
+                projected_points[j].y *= (get_window_height() / 2.0f);
 
                 projected_points[j].y *= -1.0f;
 
-                projected_points[j].x += (window_width / 2.0f);
-                projected_points[j].y += (window_height / 2.0f);
+                projected_points[j].x += (get_window_width() / 2.0f);
+                projected_points[j].y += (get_window_height() / 2.0f);
             }
 
             float light_intensity_factor = -vec3_dot(normal, light.direction);
@@ -287,13 +293,14 @@ void update(void)
 
 void render(void)
 {
-    SDL_RenderClear(renderer);
+    clear_color_buffer(0xFF000000);
+    clear_z_buffer();
 
     for (int i = 0; i < num_triangles_to_render; i++)
     {
         triangle_t triangle = triangles_to_render[i];
 
-        if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE)
+        if (should_render_filled_triangles())
         {
             draw_filled_triangle(
                 triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w,
@@ -302,7 +309,7 @@ void render(void)
                 triangle.color);
         }
 
-        if (render_method == RENDER_TEXTURED || render_method == RENDER_FILL_TRIANGLE_WIRE)
+        if (should_render_textured_triangles())
         {
             draw_textured_triangle(
                 triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v,
@@ -311,7 +318,7 @@ void render(void)
                 mesh_texture);
         }
 
-        if (render_method == RENDER_WIRE || render_method == RENDER_WIRE_VERTEX || render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_TEXTURED_WIRE)
+        if (should_render_wireframe())
         {
             draw_triangle(
                 triangle.points[0].x, triangle.points[0].y,
@@ -320,7 +327,7 @@ void render(void)
                 triangle.color);
         }
 
-        if (render_method == RENDER_WIRE_VERTEX)
+        if (should_render_wire_vertex())
         {
             draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFFFF0000);
             draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFFFF0000);
@@ -329,19 +336,12 @@ void render(void)
     }
 
     render_color_buffer();
-
-    clear_color_buffer(0xFF000000);
-    clear_z_buffer();
-
-    SDL_RenderPresent(renderer);
 }
 
 void free_resources()
 {
     array_free(mesh.faces);
     array_free(mesh.vertices);
-    array_free(color_buffer);
-    array_free(z_buffer);
     upng_free(png_texture);
 }
 
