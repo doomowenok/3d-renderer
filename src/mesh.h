@@ -3,24 +3,25 @@
 
 #include "vector.h"
 #include "triangle.h"
-
-#define N_CUBE_VERTICES 8
-#define N_CUBE_FACES (6 * 2) // 6 cube faces, 2 triangles per face
+#include "UPNG/upng.h"
 
 typedef struct 
 {
     vec3_t* vertices;
     face_t* faces;
+    upng_t* texture;
     vec3_t rotation;
     vec3_t scale;
     vec3_t translation;
 } mesh_t;
 
-extern mesh_t mesh;
-extern vec3_t cube_vertices[N_CUBE_VERTICES];
-extern face_t cube_faces[N_CUBE_FACES];
+void load_mesh(char* obj_filename, char* texture_filename, vec3_t scale, vec3_t translation, vec3_t rotation);
+void load_mesh_obj_data(mesh_t* mesh, char* obj_filename);
+void load_mesh_texture_data(mesh_t* mesh, char *texture_filename);
 
-void load_obj_file_data(char* filename);
-void load_cube_mesh_data();
+int get_num_meshes(void);
+mesh_t* get_mesh(int index);
+
+void free_meshes(void);
 
 #endif
